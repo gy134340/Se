@@ -1,30 +1,191 @@
-@import './reset'
+@import './reset';
 
-.App {
+.s-app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+// 1.61
+.s-container {
+  width: 200px;
+  height: 124px;
+  height: 322px;
+  max-height: 280px;
+  padding-bottom: 42px;
+  overflow: scroll;
+  border-radius: 4px; 
+
+  // todo
+  // background: url("@{imgDir}/bg.png") no-repeat center center;
+  // background-size: cover;
+  background: @grey-light;
+}
+.lists {
+  display: flex;
+  padding: 5px 0px 20px 0px;
+  flex-flow: column;
 }
 
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+.list-add {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .add-text {
+    font-size: 30px;
+    cursor: pointer;
+  }
+  .item-add {
+    border: none;
+    height: 24px;
+    margin-left: 4px;
+    text-indent: 4px;
+
+    &:focus {
+      outline: none;
+    }
+  }
+  ::-moz-placeholder { 
+    color: fade(@grey, 70%);
+  }
+  ::-webkit-input-placeholder { 
+    color: fade(@grey, 70%);
+  }
+  :-ms-input-placeholder {
+    color: fade(@grey, 70%);
+  }
 }
 
-.App-title {
-  font-size: 1.5em;
-}
+.list {
+  width: 100%;
+  height: 36px;
+  color: @blue;
+  cursor: pointer;
+  font-size: @big-font-size;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-.App-intro {
-  font-size: large;
-}
+  input {
+    display: inline-block;
+    width: 130px;
+    height: 26px;
+    margin-right: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    text-indent: 4px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: @blue;
+    background: @grey-light;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+    &:focus {
+      outline: none;
+      color: @grey-dark;
+      caret-color: @grey-dark;
+      // border: 1px solid @grey-dark;
+      border-bottom: 1px solid @grey-dark;
+    }
+  }
+
+  .list-link {
+    display: inline-block;
+    width: 130px;
+    height: 26px;
+    line-height: 26px;
+    margin-right: 10px;
+    text-indent: 4px;
+    text-align: left;
+    color: @blue;
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .edit-link {
+    position: fixed;
+    width: 180px;
+    top: 280px;
+    text-indent: 4px;
+    color: @grey;
+    text-align: left;
+    background-color: @grey-light;
+    // border-bottom: 1px solid @grey;
+    // box-shadow: 1px 1px 2px 2px @grey-light * 0.8;
+    border: 1px solid @grey;
+    border-radius: 4px;
+  }
+  .edit {
+    width: 20px;
+    height: 40px;
+    position: relative;
+
+    .edit-inner {
+      width: 18px;
+      height: 18px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      margin-top: -9px;
+      margin-left: -9px;
+      cursor: pointer;
+      display: inline-block;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: 95% 95%;
+      background-image: url("../img/edit-grey.svg");
+    }
+
+    &:hover {
+      .edit-inner {
+        background-image: url("../img/edit-grey-dark.svg");
+      }
+    }
+  }
+
+  // do not need now
+  .delete {
+    width: 20px;
+    height: 40px;
+    position: relative;
+
+    .up,
+    .down {
+      display: inline-block;
+      width: 14px;
+      height: 3px;
+      background-color: @grey;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-left: -7px;
+      margin-top: -1px;
+      transition: all ease-in-out 0.2s;
+    }
+    
+    .up {
+      transform: rotate(0.125turn) scale(1, 0.5);
+      transform-origin: 50% 50%; 
+    }
+
+    .down {
+      transform: rotate(0.375turn) scale(1, 0.5);
+      transform-origin: 50% 50%;
+    }
+
+    &:hover {
+      .up,
+      .down {
+        height: 3px;
+        background-color: @grey-dark;
+      }
+    }
+  }
 }
