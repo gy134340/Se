@@ -20,13 +20,21 @@ and if save all those in Bookmarks, sometimes just make things a mess.
 ---
 
 
+And, there is a Chinese poetry with Se which is about time and beautiful memories.
+> 锦瑟
+
+This repo is mostly first step to learn how to write chrome plugins and build some tools for myself.
+
+Simply use below:
+
+![Gif](public/read.gif)
 
 
+## todo
 
-And, there is a Chinese poetry with Se which is about time and beautiful memories  ,  `锦瑟无端五十弦，一弦一柱思华年`, In English:
+1. enable drag and drop
+2. add domain icon
+3. enit with popover??
+4. add some icon like `save`, now only support `enter` to save
+5. UI change??
 
-```
-Coincidentally this beautiful zither has fifty strings, 
-Each string, each fret reminds me of a year that has gone by.
-...
-```
