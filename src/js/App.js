@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 // import logo from '../img/logo.svg';
 import '../css/app'
 
-
 class Item extends Component {
   constructor(props) {
     super(props)
@@ -58,7 +57,7 @@ class Item extends Component {
     const { isEditable, item } = this.state
 
     return (
-      <div className="list" key={item.id}>
+      <div className="list">
         { isEditable ? 
           <input 
             type="text" 
@@ -67,7 +66,7 @@ class Item extends Component {
             onChange={this.handleChange}
             onKeyDown={this.handleKeyDown}
         />
-          : <a className="list-link" href={item.link}>{item.name}</a> 
+          : <a className="list-link" href={item.link} target="_blank">{item.name}</a> 
         }
 
         <span className="edit" onClick={this.handleEdit}>
@@ -103,74 +102,45 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.input = ''
+  
     this.state = {
+      urlOrigin: '',
       isAdding: false,
       addingItem: {},
-      lists: [
-        {
-          id: 1,
-          name: 'MR',
-          home: 'github.com',
-          link: 'https://github.com/mr',
-        },
-        {
-          id: 2,
-          name: 'issue',
-          home: 'github.com',
-          link: 'https://github.com/issue',
-        },
-        {
-          id: 3,
-          name: 'branch',
-          home: 'github.com',
-          link: 'https://github.com/issue',
-        },
-        {
-          id: 4,
-          name: 'MR',
-          home: 'github.com',
-          link: 'https://github.com/mr',
-        },
-        // {
-        //   id: 5,
-        //   name: 'issue',
-        //   home: 'github.com',
-        //   link: 'https://github.com/issue',
-        // },
-        // {
-        //   id: 6,
-        //   name: 'branch',
-        //   home: 'github.com',
-        //   link: 'https://github.com/issue',
-        // },
-        // {
-        //   id: 7,
-        //   name: 'MR',
-        //   home: 'github.com',
-        //   link: 'https://github.com/mr',
-        // },
-        // {
-        //   id: 8,
-        //   name: 'issue',
-        //   home: 'github.com',
-        //   link: 'https://github.com/issue',
-        // },
-      ]
+      lists: [],
     }
   }
 
-  addList = (item) => {
-    const { lists } = this.state
-    if (!!item.name) {
-      this.setState({
-        isAdding: false,
-        addingItem: {},
-        lists: [...lists, item]
+  componentDidMount() {
+    this.readFromStorage()
+  }
+
+  readFromStorage = () => {
+    let lists
+    /*eslint-disable no-undef*/
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.sync.get('seLists', (data) => {
+        lists = data.seLists || []
+        this.setState({lists})
       })
-    } else {
-      this.setState({
-        isAdding: false,
-        addingItem: {},
+
+      chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},
+        (tabs) => {
+          const url  = new URL(tabs[0].url)
+          const urlOrigin = url.origin
+          this.setState({
+            urlOrigin,
+          }) 
+        }
+      );
+    }
+  }
+
+  writeToStorage = (lists) =>{
+    /*eslint-disable no-undef*/
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.sync.set({
+        'seLists': lists,
       })
     }
   }
@@ -183,46 +153,8 @@ class App extends Component {
     })
   }
 
-  handleAdd = (e) => {
-    const { value } = e.target
-    const { addingItem } = this.state
-
-    this.setState({
-      addingItem: {...addingItem, name: value}
-    })
-
-  }
-
-  handleBlur = () => {
-    let { addingItem } = this.state
-
-    // todo: remove
-    addingItem = {
-      ...addingItem,
-      id: 1000,
-      home: '1',
-      link: 'testststs'
-    }
-    this.addList(addingItem)
-  }
-
-  handleKeyDown = (e) => {
-    if (e.keyCode === 13) { 
-      let { addingItem } = this.state
-
-      // todo: remove
-      addingItem = {
-        ...addingItem,
-        id: 1000,
-        home: '1',
-        link: 'testststs'
-      }
-      this.addList(addingItem)
-    }
-  }
-
   handleChange = (item) => {
-    const { lists, addingItem } = this.state
+    const { lists } = this.state
     let alteredIndex
     lists.forEach((list, index) => {
       if (list.id === item.id) {
@@ -233,22 +165,103 @@ class App extends Component {
     if (isDeleted) {
       this.setState({
         lists: [...lists.slice(0, alteredIndex), ...lists.slice(alteredIndex + 1)]
+      }, () => {
+        const { lists } = this.state
+        this.writeToStorage(lists)
       })
     } else {
       this.setState({
         lists: [...lists.slice(0, alteredIndex), item, ...lists.slice(alteredIndex + 1)]
+      }, () => {
+        const { lists } = this.state
+        this.writeToStorage(lists)
       })
     }   
   }
 
+  handleAddChange = (e) => {
+    const { value } = e.target
+    const { addingItem } = this.state
+
+    this.setState({
+      addingItem: {...addingItem, name: value}
+    })
+  }
+
+  handleBlur = () => {
+    let { addingItem } = this.state
+    this.addLists(addingItem)
+  }
+
+  handleKeyDown = (e) => {
+    if (e.keyCode === 13) { 
+      const { addingItem } = this.state  
+      this.addLists(addingItem)
+    }
+  }
+
+  // isDuplicate = (name) => {
+  //   const { lists } = this.state
+  //   const list = lists.find((item) => item.name === name)
+  //   return !!list
+  // }
+
+  addLists = (item) => {
+    const { lists } = this.state
+    if (!!item.name) {
+      // if (this.isDuplicate(item.name)) {
+      //   this.setState({
+      //     isAdding: false,
+      //     addingItem: {},
+      //   }, () => {
+      //     alert('Duplicate name')
+      //   })
+      //   return
+      // }
+      const id = Math.floor(Math.random() * 1000) + '' + new Date().getTime()
+      chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},
+        (tabs) => {
+            const url  = new URL(tabs[0].url)
+            const home = url.origin
+            const link = url.href
+            item = {...item, id, home, link}
+            this.setState({
+              isAdding: false,
+              addingItem: {},
+              lists: [...lists, item]
+            }, () => {
+              const { lists } = this.state
+              this.writeToStorage(lists)
+            })
+        }
+      );
+      // const home = window.location.origin
+      // const link = window.location.href
+      // item = {...item, id, home, link}
+      // this.setState({
+      //   isAdding: false,
+      //   addingItem: {},
+      //   lists: [...lists, item]
+      // }, () => {
+      //   const { lists } = this.state
+      //   this.writeToStorage(lists)
+      // })
+    } else {
+      this.setState({
+        isAdding: false,
+        addingItem: {},
+      })
+    }
+  }
 
   render() {
-    const { lists, addingItem, isAdding } = this.state
+    const { lists, addingItem, isAdding, urlOrigin } = this.state
     const List = lists.map((item, index) => {
-      return (
+      return ((item.home === urlOrigin) &&
         <Item 
-          key={item.id} 
-          item={item} 
+          key={JSON.stringify(item)} 
+          item={item}
+          urlOrigin={urlOrigin} 
           onChange={this.handleChange}
         />
       )
@@ -266,8 +279,8 @@ class App extends Component {
                 type="text"
                 ref={input => this.input = input}
                 placeholder="Add tmp page as..."
-                value={addingItem.name}
-                onChange={this.handleAdd}
+                value={addingItem.name || ''}
+                onChange={this.handleAddChange}
                 onKeyDown={this.handleKeyDown}
                 onBlur={this.handleBlur}
               />
