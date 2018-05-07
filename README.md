@@ -26,8 +26,7 @@ And, there is a Chinese poetry with Se which is about time and beautiful memorie
 This repo is mostly first step to learn how to write chrome plugins and build some tools for myself.
 
 Simply use below:
-
-![Gif](public/read.gif)
+// todo
 
 
 ## todo
